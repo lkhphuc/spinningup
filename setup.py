@@ -27,6 +27,7 @@ setup(
         'scipy',
         'seaborn==0.8.1',
         'tensorflow>=1.8.0',
+        'torch',
         'tqdm'
     ],
     description="Teaching tools for introducing people to deep RL.",
