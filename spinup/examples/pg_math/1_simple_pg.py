@@ -1,9 +1,7 @@
-import tensorflow as tf
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-
 import numpy as np
 import gym
 from gym.spaces import Discrete, Box
