@@ -1,5 +1,20 @@
 **Status:** Active (under active development, breaking changes may occur)
 
+Pytorch version
+===============
+This fork of Spinning Up uses only Pytorch (>=1.0) for all code implementations.
+
+The principals behind the converted codes are similar to the original OpenAI's vision:
+
+- Code is well structured and follow the templates when possible.
+- Favor simplicity and focus on the RL algorithms over obscure software engineering practices and clever optimization.
+
+Currently only code files will be converted. In the future, the tutorial will be also be updated with Pytorch code sample.
+
+*Contributions and Pull Requests are welcomed.*
+
+**Big thank to OpenAI and @jachiam for this**
+
 Welcome to Spinning Up in Deep RL! 
 ==================================
 
