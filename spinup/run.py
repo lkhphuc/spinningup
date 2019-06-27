@@ -5,7 +5,7 @@ import argparse
 import gym
 import json
 import os, subprocess, sys
-import os.path as osp
+from pathlib import Path
 import string
 import tensorflow as tf
 from textwrap import dedent
@@ -35,12 +35,12 @@ def parse_and_execute_grid_search(cmd, args):
     """Interprets algorithm name and cmd line args into an ExperimentGrid."""
 
     # Parse which algorithm to execute
-    algo = eval('spinup.'+cmd)
+    algo = eval(f'spinup.{cmd}')
 
     # Before all else, check to see if any of the flags is 'help'.
     valid_help = ['--help', '-h', 'help']
     if any([arg in valid_help for arg in args]):
-        print('\n\nShowing docstring for spinup.'+cmd+':\n')
+        print(f'\n\nShowing docstring for spinup.{cmd}:\n')
         print(algo.__doc__)
         sys.exit()
 
@@ -69,8 +69,8 @@ def parse_and_execute_grid_search(cmd, args):
     # Make second pass through, to catch flags that have no vals.
     # Assume such flags indicate that a boolean parameter should have
     # value True.
-    for k,v in arg_dict.items():
-        if len(v)==0:
+    for k, v in arg_dict.items():
+        if len(v) == 0:
             v.append(True)
 
     # Third pass: check for user-supplied shorthands, where a key has
@@ -85,7 +85,7 @@ def parse_and_execute_grid_search(cmd, args):
         if p1 >= 0 and p2 >= 0:
             # Both '[' and ']' found, so shorthand has been given
             k_new = k[:p1]
-            shorthand = k[p1+1:p2]
+            shorthand = k[p1 + 1:p2]
             given_shorthands[k_new] = shorthand
             arg_dict[k_new] = arg_dict[k]
             del arg_dict[k]
@@ -112,15 +112,15 @@ def parse_and_execute_grid_search(cmd, args):
     for k in RUN_KEYS:
         if k in arg_dict:
             val = arg_dict[k]
-            assert len(val)==1, \
-                friendly_err("You can only provide one value for %s."%k)
+            assert len(val) == 1, \
+                friendly_err(f"You can only provide one value for {k}.")
             run_kwargs[k] = val[0]
             del arg_dict[k]
 
     # Determine experiment name. If not given by user, will be determined
     # by the algorithm name.
     if 'exp_name' in arg_dict:
-        assert len(arg_dict['exp_name'])==1, \
+        assert len(arg_dict['exp_name']) == 1, \
             friendly_err("You can only provide one value for exp_name.")
         exp_name = arg_dict['exp_name'][0]
         del arg_dict['exp_name']
@@ -139,9 +139,9 @@ def parse_and_execute_grid_search(cmd, args):
     assert 'env_name' in arg_dict, \
         friendly_err("You did not give a value for --env_name! Add one and try again.")
     for env_name in arg_dict['env_name']:
-        err_msg = dedent("""
+        err_msg = dedent(f"""
 
-            %s is not registered with Gym.
+            {env_name} is not registered with Gym.
 
             Recommendations:
 
@@ -151,13 +151,12 @@ def parse_and_execute_grid_search(cmd, args):
 
                     https://gym.openai.com/envs/
 
-            """%env_name)
+            """)
         assert env_name in valid_envs, err_msg
-
 
     # Construct and execute the experiment grid.
     eg = ExperimentGrid(name=exp_name)
-    for k,v in arg_dict.items():
+    for k, v in arg_dict.items():
         eg.add(k, v, shorthand=given_shorthands.get(k))
     eg.run(algo, **run_kwargs)
 
@@ -186,7 +185,7 @@ if __name__ == '__main__':
         # Before all else, check to see if any of the flags is 'help'.
 
         # List commands that are available.
-        str_valid_cmds = '\n\t' + '\n\t'.join(valid_algos+valid_utils)
+        str_valid_cmds = '\n\t' + '\n\t'.join(valid_algos + valid_utils)
         help_msg = dedent("""
             Experiment in Spinning Up from the command line with
 
@@ -197,8 +196,8 @@ if __name__ == '__main__':
         print(help_msg)
 
         # Provide some useful details for algorithm running.
-        subs_list = ['--' + k.ljust(10) + 'for'.ljust(10) + '--' + v \
-                     for k,v in SUBSTITUTIONS.items()]
+        subs_list = ['--' + k.ljust(10) + 'for'.ljust(10) + '--' + v
+                     for k, v in SUBSTITUTIONS.items()]
         str_valid_subs = '\n\t' + '\n\t'.join(subs_list)
         special_info = dedent("""
             FYI: When running an algorithm, any keyword argument to the
@@ -220,7 +219,7 @@ if __name__ == '__main__':
 
     elif cmd in valid_utils:
         # Execute the correct utility file.
-        runfile = osp.join(osp.abspath(osp.dirname(__file__)), 'utils', cmd +'.py')
+        runfile = str(Path(__file__).parent.resolve() / 'utils' / f'{cmd}.py')
         args = [sys.executable if sys.executable else 'python', runfile] + sys.argv[2:]
         subprocess.check_call(args, env=os.environ)
     else:
